@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios.js';
 import toast from 'react-hot-toast';
+import { getImageUrl } from '../utils/imageUrl.js';
 import {
   FiUpload,
   FiX,
@@ -243,7 +244,7 @@ const TransactionForm = ({ transaction, onSuccess, onCancel }) => {
         {preview ? (
           <div className="relative inline-block group">
             <img
-              src={preview}
+              src={getImageUrl(preview)}
               alt="Receipt preview"
               className="h-28 w-auto rounded-xl border border-slate-200 shadow-sm object-cover"
             />

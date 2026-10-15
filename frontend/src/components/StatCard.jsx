@@ -44,7 +44,7 @@ const StatCard = ({ title, value, icon: Icon, color = 'primary', subtitle, trend
           <p className="text-xs font-bold uppercase tracking-wider text-slate-600">
             {title}
           </p>
-          <p className="mt-2 text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight truncate">
+          <p className="mt-2 text-md sm:text-xl font-extrabold text-slate-900 tracking-tight truncate">
             {value}
           </p>
           {subtitle && (

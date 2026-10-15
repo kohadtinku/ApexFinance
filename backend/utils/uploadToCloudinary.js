@@ -37,28 +37,42 @@ export const uploadToCloudinary = async (buffer, folder = 'expense-tracker/recei
     console.log('🔄 Seamlessly saving image to local storage fallback...');
   }
 
-  // 2. Fallback to Local Disk Storage
+  // 2. Fallback to Base64 Data URI & Local Disk Storage
   try {
-    const subFolder = folder.includes('profile') ? 'profiles' : 'receipts';
-    const uploadDir = path.join(__dirname, '..', 'uploads', subFolder);
-
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    let mimeType = 'image/jpeg';
+    if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47) {
+      mimeType = 'image/png';
+    } else if (buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46) {
+      mimeType = 'image/gif';
+    } else if (buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46) {
+      mimeType = 'image/webp';
     }
 
-    const uniqueFilename = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}.jpg`;
-    const filePath = path.join(uploadDir, uniqueFilename);
+    const base64Data = `data:${mimeType};base64,${buffer.toString('base64')}`;
 
-    await fs.promises.writeFile(filePath, buffer);
-    const localUrl = `/uploads/${subFolder}/${uniqueFilename}`;
+    // Also attempt writing to local disk if backend serves static files
+    try {
+      const subFolder = folder.includes('profile') ? 'profiles' : 'receipts';
+      const uploadDir = path.join(__dirname, '..', 'uploads', subFolder);
+
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      const uniqueFilename = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}.jpg`;
+      const filePath = path.join(uploadDir, uniqueFilename);
+      await fs.promises.writeFile(filePath, buffer);
+    } catch (diskWriteErr) {
+      // Ignore disk write failure in read-only / ephemeral environments
+    }
 
     return {
-      secure_url: localUrl,
-      url: localUrl,
-      public_id: uniqueFilename,
+      secure_url: base64Data,
+      url: base64Data,
+      public_id: `${Date.now()}`,
     };
-  } catch (diskError) {
-    console.error('❌ Failed to save image locally:', diskError);
+  } catch (fallbackError) {
+    console.error('❌ Failed to process image fallback:', fallbackError);
     throw new Error('Image upload failed');
   }
 };

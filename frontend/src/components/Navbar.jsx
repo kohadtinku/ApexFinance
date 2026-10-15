@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FiMenu, FiCalendar, FiUser, FiPlus } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext.jsx';
+import { getImageUrl } from '../utils/imageUrl.js';
 
 const pageMeta = {
   '/': { title: 'Dashboard', desc: 'Financial overview & analytics' },
@@ -13,6 +15,11 @@ const pageMeta = {
 const Navbar = ({ onMenuClick }) => {
   const { user } = useAuth();
   const { pathname } = useLocation();
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [user?.profilePicture]);
 
   const currentMeta = pageMeta[pathname] || { title: 'Finance Tracker', desc: 'Track your money' };
 
@@ -69,10 +76,11 @@ const Navbar = ({ onMenuClick }) => {
             </div>
 
             <div className="relative">
-              {user?.profilePicture ? (
+              {user?.profilePicture && !imgError ? (
                 <img
-                  src={user.profilePicture}
+                  src={getImageUrl(user.profilePicture)}
                   alt={user.name}
+                  onError={() => setImgError(true)}
                   className="w-9 h-9 rounded-xl object-cover ring-2 ring-blue-500/20 shadow-sm"
                 />
               ) : (

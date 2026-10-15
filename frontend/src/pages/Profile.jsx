@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../api/axios.js';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext.jsx';
+import { getImageUrl } from '../utils/imageUrl.js';
 import {
   FiUser,
   FiMail,
@@ -19,6 +20,7 @@ const Profile = () => {
   const { user, updateUser } = useAuth();
   const [name, setName] = useState(user?.name || '');
   const [savingName, setSavingName] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirm: '' });
   const [showPasswords, setShowPasswords] = useState(false);
@@ -28,6 +30,7 @@ const Profile = () => {
 
   useEffect(() => {
     setName(user?.name || '');
+    setImgError(false);
   }, [user]);
 
   const handleNameSave = async (e) => {
@@ -102,10 +105,11 @@ const Profile = () => {
         <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6">
           {/* Avatar with Camera badge */}
           <div className="relative group">
-            {user?.profilePicture ? (
+            {user?.profilePicture && !imgError ? (
               <img
-                src={user.profilePicture}
+                src={getImageUrl(user.profilePicture)}
                 alt={user.name}
+                onError={() => setImgError(true)}
                 className="w-24 h-24 rounded-2xl object-cover ring-4 ring-blue-500/20 shadow-md group-hover:opacity-90 transition"
               />
             ) : (

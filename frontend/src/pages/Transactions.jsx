@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import api from '../api/axios.js';
 import toast from 'react-hot-toast';
 import { currency } from '../utils/currency.js';
+import { getImageUrl } from '../utils/imageUrl.js';
 import {
   FiPlus,
   FiSearch,
@@ -581,7 +582,7 @@ const Transactions = () => {
               <FiX size={18} />
             </button>
             <img
-              src={previewImage}
+              src={getImageUrl(previewImage)}
               alt="Receipt preview"
               className="w-full max-h-[80vh] object-contain rounded-xl"
             />
